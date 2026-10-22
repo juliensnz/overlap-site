@@ -2,29 +2,672 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Support · OverLap</title>
-<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OverLap — Lap timing for FPV. Just your iPhone.</title>
+<meta name="description" content="Stand your iPhone beside the gate and fly. OverLap's camera sees the drone cross and times every lap. No transponder, nothing on the drone.">
+<meta name="theme-color" content="#050607">
+<meta property="og:type" content="website">
+<meta property="og:title" content="OverLap — Your camera is the timer">
+<meta property="og:description" content="FPV lap timing with just your iPhone. Every lap, every stat, your goggle footage with your numbers on it.">
+<meta property="og:image" content="https://juliensnz.github.io/overlap-site/assets/backdrop-light-trails.jpg">
+<meta property="og:url" content="https://juliensnz.github.io/overlap-site/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;family=Barlow:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{--accent:#70F1C9}
+
+body{margin:0;background:#050607}
+a{color:#F2F5F4;text-decoration:none}a:hover{color:#70F1C9}
+.page{container-type:inline-size;container-name:page}
+.page *{box-sizing:border-box}
+.mono{font-family:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;font-variant-numeric:tabular-nums}
+.display{font-family:'Barlow Condensed','Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:-0.01em;line-height:.9}
+.wrap{width:100%;max-width:1240px;margin:0 auto;padding-inline:clamp(16px,4cqi,40px)}
+.kicker{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+
+/* ── 3D devices: real mockup PNG on top, screenshot in the exact screen rect, a side edge and glare for depth ── */
+.device{position:absolute;aspect-ratio:900/1840;filter:drop-shadow(0 40px 60px rgba(0,0,0,.8))}
+.device-body{position:absolute;inset:0}
+.device-screen{position:absolute;left:5.333%;top:2.5%;width:89.333%;height:95%;object-fit:cover;border-radius:14.9% / 6.9%;background:#000}
+.device-glare,.watch-glare{display:none}
+.device-frame{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.watch{position:absolute;aspect-ratio:600/940;filter:drop-shadow(0 30px 50px rgba(0,0,0,.85))}
+.watch-screen{position:absolute;left:15.833%;top:23.298%;width:68.333%;height:53.404%;object-fit:cover;border-radius:26.6% / 21.7%;background:#000}
+.watch-glare{position:absolute;left:15.833%;top:23.298%;width:68.333%;height:53.404%;border-radius:26.6% / 21.7%;background:linear-gradient(125deg,rgba(255,255,255,.2),rgba(255,255,255,0) 45%);pointer-events:none}
+
+/* ── Bento ── */
+.bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px}
+.span-4{grid-column:span 4}.span-5{grid-column:span 5}.span-6{grid-column:span 6}.span-7{grid-column:span 7}.span-8{grid-column:span 8}.span-12{grid-column:span 12}
+.tile{position:relative;overflow:hidden;isolation:isolate;border-radius:28px;border:1px solid transparent;background:linear-gradient(#0B0E0F,#0B0E0F) padding-box,linear-gradient(165deg,rgba(255,255,255,.17),rgba(255,255,255,.04) 38%,rgba(112,241,201,.24)) border-box;display:flex;flex-direction:column}
+.tile::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(110% 70% at 15% 0%,rgba(112,241,201,.09),rgba(112,241,201,0) 60%)}
+.tile-copy{position:relative;z-index:2;padding:34px 36px 0;display:flex;flex-direction:column;gap:12px}
+.tile-media{position:relative;flex:1}
+.chip{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;letter-spacing:.08em;border:1px solid #262C30;border-radius:999px;padding:7px 13px;color:#C9D2D0;background:rgba(5,6,7,.6)}
+.float-card{position:absolute;z-index:5;background:rgba(12,15,16,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1);border-radius:16px;box-shadow:0 30px 60px -20px rgba(0,0,0,.9)}
+.pro-badge{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:.14em;padding:4px 8px;border-radius:6px;background:var(--accent);color:#04140F}
+
+/* ── Motion ── */
+@keyframes bestFlashA{0%{background:#70F1C9;color:#04140F;transform:scale(1.06)}100%{background:rgba(112,241,201,.12);color:#70F1C9;transform:scale(1)}}
+@keyframes bestFlashB{0%{background:#70F1C9;color:#04140F;transform:scale(1.06)}100%{background:rgba(112,241,201,.12);color:#70F1C9;transform:scale(1)}}
+@keyframes livePulse{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes reveal{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:none}}
+@keyframes marquee{to{transform:translateX(-50%)}}
+@keyframes voiceBar{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.live-dot{animation:livePulse 1.2s ease-in-out infinite}
+.marquee-track{display:flex;gap:44px;width:max-content;animation:marquee 46s linear infinite}
+.voice-bar{transform-origin:center;animation:voiceBar 1.1s ease-in-out infinite}
+.floating{animation:floatY 6s ease-in-out infinite}
+@media (prefers-reduced-motion: no-preference){
+  @supports (animation-timeline: view()){
+    .reveal{animation:reveal linear both;animation-timeline:view();animation-range:entry 0% entry 40%}
+  }
+}
+@media (prefers-reduced-motion: reduce){
+  .live-dot,.marquee-track,.voice-bar,.floating{animation:none}
+}
+
+/* ── Responsive ── */
+.hero-video-portrait{display:none}
+.mobile-bar{display:none}
+.nav-links{display:flex}
+@container page (max-width: 1000px){
+  .span-4,.span-5,.span-6,.span-7,.span-8{grid-column:span 12}
+}
+@container page (max-width: 760px){
+  .hero-video-landscape{display:none}
+  .hero-video-portrait{display:block}
+  .nav-links{display:none}
+  .mobile-bar{display:flex}
+  .hero-back-device{display:none}
+  .hero-stage{min-height:560px !important}
+  .tile-copy{padding:26px 24px 0}
+}
+
+</style>
 </head>
 <body>
-<main>
-<nav><span class="pages"><a href="index.html" aria-current="page">Support</a> <a href="privacy.html">Privacy policy</a></span> <span><a href="index.html" hreflang="en" aria-current="true">English</a> <a href="fr/index.html" hreflang="fr">Français</a> <a href="de/index.html" hreflang="de">Deutsch</a> <a href="es/index.html" hreflang="es">Español</a> <a href="it/index.html" hreflang="it">Italiano</a></span></nav>
-<h1>OverLap</h1>
-<p class="muted">Lap timer for FPV drones, on iPhone and Apple Watch.</p>
-<h2>Contact</h2>
-<p>Questions, bugs or ideas: write to <a href="mailto:overlap@nchez.fr">overlap@nchez.fr</a>. In the app, Settings › Send feedback adds your app version and iPhone model to the email.</p>
-<h2>Frequently asked questions</h2>
-<h3>Where do I put the phone?</h3>
-<p>Beside the gate, in the gate’s own plane, looking along the gate line, across the flight path. Never in front of or behind the gate. Seen from the phone, the gate is edge-on: centre it on the line shown on screen.</p>
-<h3>Which goggle recordings can I import?</h3>
-<p>MP4, MOV and AVI files, from the Photos library or the Files app. Analog goggle DVRs that record Motion-JPEG AVI (often 640×480) are supported. Show the sync code on the phone to the drone camera before the race so the app can line the video up with the race.</p>
-<h3>How do I restore my OverLap Pro purchase?</h3>
-<p>Open Settings › OverLap Pro and tap Restore purchases, signed in with the Apple Account that bought it. Pro is a one-time purchase and follows your Apple Account on all your iPhones.</p>
-<h3>How do I back up my data?</h3>
-<p>Your tracks, races, laps and packs are stored on the iPhone and are included in its iCloud or computer backup. Imported goggle videos are left out of backups because of their size: keep the originals from your goggles.</p>
-<h2>Privacy policy</h2>
-<p><a href="privacy.html">Read the privacy policy</a></p>
-<footer>OverLap · <a href="mailto:overlap@nchez.fr">overlap@nchez.fr</a></footer>
-</main>
+<div class="page" style="background: #050607; color: #F2F5F4; font-family: 'Barlow', system-ui, -apple-system, sans-serif; font-size: 18px; line-height: 1.5; overflow-x: clip; -webkit-font-smoothing: antialiased">
+
+  <!-- ───────── NAV ───────── -->
+  <nav aria-label="Main" style="position: sticky; top: 0; z-index: 20; background: rgba(5,6,7,.62); backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4); border-bottom: 1px solid rgba(255,255,255,.06)">
+    <div class="wrap" style="display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 68px">
+      <a href="#top" aria-label="OverLap home" class="display" style="font-size: 32px; font-weight: 800; font-style: italic; text-transform: none; letter-spacing: -0.02em; display: flex; align-items: baseline"><span>Over</span><span style="color: var(--accent)">Lap</span></a>
+      <div class="nav-links" style="align-items: center; gap: 30px; font-size: 15px; font-weight: 500">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#overlays">Overlays</a>
+        <a href="#pro">Pro</a>
+        <a href="https://apps.apple.com/app/overlap-lap-timer/idXXXXXXXXXX" aria-label="Download OverLap on the App Store" style="display: block; line-height: 0"><img src="assets/app-store-badge.svg" alt="Download on the App Store" style="height: 40px; width: auto"></a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ───────── HERO ───────── -->
+  <header id="top" style="position: relative; overflow: hidden; isolation: isolate; margin-top: -68px; padding-top: 68px">
+    <video class="hero-video-landscape" src="assets/hero-goggle-loop.mp4" poster="assets/hero-goggle-loop-poster.jpg" autoplay="" muted="" loop="" playsinline="" preload="auto" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -3; filter: blur(2px) saturate(1.15); transform: scale(1.04)"></video>
+    <video class="hero-video-portrait" src="assets/goggle-portrait-telemetry.mp4" poster="assets/goggle-portrait-telemetry-poster.jpg" autoplay="" muted="" loop="" playsinline="" preload="auto" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -3"></video>
+    <div aria-hidden="true" style="position: absolute; inset: 0; z-index: -2; background: linear-gradient(90deg, rgba(5,6,7,.96) 0%, rgba(5,6,7,.82) 40%, rgba(5,6,7,.5) 70%, rgba(5,6,7,.72) 100%), linear-gradient(0deg, #050607 0%, rgba(5,6,7,0) 28%)"></div>
+    <div aria-hidden="true" style="position: absolute; right: -10%; top: 10%; width: 70%; aspect-ratio: 1; z-index: -1; background: radial-gradient(closest-side, rgba(112,241,201,.22), rgba(112,241,201,0))"></div>
+    <div aria-hidden="true" style="position: absolute; inset: 0; z-index: -1; opacity: .18; background: repeating-linear-gradient(0deg, rgba(0,0,0,.9) 0px, rgba(0,0,0,.9) 1px, transparent 1px, transparent 3px)"></div>
+
+    <div class="wrap" style="display: flex; flex-wrap: wrap; align-items: center; gap: 40px; padding-top: 72px; padding-bottom: 64px; min-height: 860px">
+      <div style="flex: 1 1 440px; min-width: 0; display: flex; flex-direction: column; gap: 26px; max-width: 600px">
+        <div class="mono" style="display: inline-flex; align-self: flex-start; align-items: center; gap: 10px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #C9D2D0; border: 1px solid rgba(255,255,255,.12); border-radius: 999px; padding: 8px 14px; background: rgba(5,6,7,.5)">
+          <span class="live-dot" aria-hidden="true" style="width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent)"></span>
+          <span>FPV lap timer · iPhone + Apple Watch</span>
+        </div>
+        <h1 class="display" style="margin: 0; font-size: clamp(62px, 8.8cqi, 138px); font-weight: 800; font-style: italic; text-wrap: balance">Fly. Lap. <span style="color: var(--accent)">Improve.</span></h1>
+        <p style="margin: 0; font-size: clamp(18px, 1.6cqi, 21px); color: #C9D2D0; max-width: 500px; text-wrap: pretty">Stand your iPhone beside the gate and fly. The camera sees the drone cross and times every lap. No transponder, nothing on the drone.</p>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 22px">
+          <a href="https://apps.apple.com/app/overlap-lap-timer/idXXXXXXXXXX" aria-label="Download OverLap on the App Store" style="display: block; line-height: 0; border-radius: 12px; box-shadow: 0 12px 44px -8px rgba(112,241,201,.5)"><img src="assets/app-store-badge.svg" alt="Download on the App Store" style="height: 60px; width: auto; display: block"></a>
+          <div style="font-size: 15px; color: #A9B3B1; line-height: 1.35">Free download<br><span style="color: #F2F5F4">Pro €9.99 once.</span> No subscription.</div>
+        </div>
+      </div>
+
+      <div class="hero-stage" style="flex: 1 1 460px; min-width: 0; position: relative; min-height: 700px">
+        <div class="device hero-back-device" style="width: clamp(220px, 19cqi, 262px); left: 2%; top: 70px; --rotate-y: 30deg; --rotate-x: 4deg; --rotate-z: -3deg; opacity: .85">
+          <div class="device-body">
+            <img class="device-screen" src="assets/screen-sectors.jpg" alt="Sector comparison: gap to lap 19 chart and throttle trace">
+            <span class="device-glare" aria-hidden="true"></span>
+            <img class="device-frame" src="assets/iphone-17-pro-frame.png" alt="" aria-hidden="true">
+          </div>
+        </div>
+        <div class="device" style="width: clamp(250px, 23cqi, 310px); right: 4%; top: 10px; --rotate-y: -20deg; --rotate-x: 5deg; --rotate-z: 2deg; z-index: 2">
+          <div class="device-body">
+            <img class="device-screen" src="assets/screen-race-live.jpg" alt="OverLap race screen: the camera view with the gate trigger line, lap 4, 1:06 time left, last and best lap">
+            <span class="device-glare" aria-hidden="true"></span>
+            <img class="device-frame" src="assets/iphone-17-pro-frame.png" alt="" aria-hidden="true">
+          </div>
+        </div>
+
+        <div class="float-card" role="img" aria-label="Live lap timer" style="left: 0; bottom: 30px; width: 244px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px">
+          <div class="mono" style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; letter-spacing: .14em; color: #A9B3B1">
+            <span style="display: flex; align-items: center; gap: 7px"><span class="live-dot" style="width: 6px; height: 6px; border-radius: 50%; background: #FF5A4E"></span>LIVE</span>
+            <span>LAP 4</span>
+          </div>
+          <div class="mono" style="font-size: 44px; font-weight: 700; line-height: 1; letter-spacing: -0.03em">0:08.42</div>
+          <div class="mono" style="display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; border-radius: 9px; font-size: 14px; font-weight: 700; background: rgba(112,241,201,.12); color: var(--accent); animation: none">
+            <span style="letter-spacing: .12em; font-size: 11px">BEST</span><span>0:12.69</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px; border-top: 1px solid rgba(255,255,255,.08); padding-top: 9px">
+            <div class="mono" style="display: flex; justify-content: space-between; font-size: 13px; color: #A9B3B1"><span data-lap-n>L3</span><span data-lap-t style="color: #C9D2D0">0:13.04</span></div>
+<div class="mono" style="display: flex; justify-content: space-between; font-size: 13px; color: #A9B3B1"><span data-lap-n>L2</span><span data-lap-t style="color: #C9D2D0">0:12.69</span></div>
+<div class="mono" style="display: flex; justify-content: space-between; font-size: 13px; color: #A9B3B1"><span data-lap-n>L1</span><span data-lap-t style="color: #C9D2D0">0:14.12</span></div>
+          </div>
+        </div>
+
+        <div class="float-card floating hero-back-device" style="left: 30%; top: 26px; padding: 10px 14px; display: flex; align-items: center; gap: 10px">
+          <span class="mono" style="font-size: 11px; letter-spacing: .14em; color: #A9B3B1">AND BACK</span>
+          <span class="mono" style="font-size: 16px; font-weight: 700; color: #FF6B5E">+0.33 s</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ───────── MARQUEE ───────── -->
+  <div aria-hidden="true" style="border-top: 1px solid #14181A; border-bottom: 1px solid #14181A; overflow: hidden; padding: 18px 0; background: #07090A">
+    <div class="marquee-track display" style="font-size: 26px; font-weight: 700; font-style: italic; color: #C9D2D0; white-space: nowrap">
+      <span>No transponder</span><span style="color: var(--accent)">◆</span><span>Nothing on the drone</span><span style="color: var(--accent)">◆</span><span>Tiny whoop to 5"</span><span style="color: var(--accent)">◆</span><span>iPhone + Apple Watch</span><span style="color: var(--accent)">◆</span><span>No account</span><span style="color: var(--accent)">◆</span><span>Pro €9.99 once</span><span style="color: var(--accent)">◆</span>
+      <span>No transponder</span><span style="color: var(--accent)">◆</span><span>Nothing on the drone</span><span style="color: var(--accent)">◆</span><span>Tiny whoop to 5"</span><span style="color: var(--accent)">◆</span><span>iPhone + Apple Watch</span><span style="color: var(--accent)">◆</span><span>No account</span><span style="color: var(--accent)">◆</span><span>Pro €9.99 once</span><span style="color: var(--accent)">◆</span>
+    </div>
+  </div>
+
+  <div>
+    <!-- ───────── HOW IT WORKS ───────── -->
+    <section id="how" aria-labelledby="how-title" style="position: relative; isolation: isolate; padding: 160px 0 60px">
+      <img src="assets/backdrop-living-room.jpg" alt="" aria-hidden="true" loading="lazy" style="position: absolute; left: 0; top: 0; width: 100%; height: 820px; object-fit: cover; object-position: 50% 60%; z-index: -2; opacity: .7">
+      <div aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 822px; z-index: -1; background: linear-gradient(180deg, #050607 0%, rgba(5,6,7,.35) 30%, rgba(5,6,7,.55) 60%, #050607 100%), linear-gradient(90deg, rgba(5,6,7,.75) 0%, rgba(5,6,7,0) 60%)"></div>
+      <div class="wrap" style="display: flex; flex-direction: column; gap: 44px">
+        <div class="reveal" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 20px 60px">
+          <div style="display: flex; flex-direction: column; gap: 14px">
+            <div class="kicker">How it works</div>
+            <h2 id="how-title" class="display" style="margin: 0; font-size: clamp(48px, 6.4cqi, 92px); font-weight: 800; font-style: italic">Three steps.<br>No timing gear.</h2>
+          </div>
+          <p style="margin: 0; max-width: 380px; color: #A9B3B1; font-size: 17px">If your phone can see the gate, it can time your laps.</p>
+        </div>
+
+        <div class="bento reveal">
+          <div class="tile span-4" style="min-height: 250px">
+            <div class="tile-copy" style="padding-bottom: 32px; gap: 16px">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start">
+                <svg width="60" height="60" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: var(--accent)"><path d="M30 8v48M58 8v48M30 8h28"/><rect x="8" y="32" width="12" height="24" rx="2.5"/><path d="M4 56h58"/><path d="M23 44h5" stroke-dasharray="2 3"/></svg>
+                <span class="display" style="font-size: 72px; font-weight: 800; font-style: italic; color: transparent; -webkit-text-stroke: 1.5px #2C3438">1</span>
+              </div>
+              <h3 class="display" style="margin: 0; font-size: 36px; font-weight: 700">Phone beside the gate</h3>
+              <p style="margin: 0; color: #A9B3B1; font-size: 16px">Stand it next to the gate, camera in line with it.</p>
+            </div>
+          </div>
+          <div class="tile span-4" style="min-height: 250px">
+            <div class="tile-copy" style="padding-bottom: 32px; gap: 16px">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start">
+                <svg width="60" height="60" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: var(--accent)"><circle cx="17" cy="20" r="9"/><circle cx="47" cy="20" r="9"/><circle cx="17" cy="44" r="9"/><circle cx="47" cy="44" r="9"/><rect x="24" y="25" width="16" height="14" rx="4"/><circle cx="32" cy="32" r="2.5"/></svg>
+                <span class="display" style="font-size: 72px; font-weight: 800; font-style: italic; color: transparent; -webkit-text-stroke: 1.5px #2C3438">2</span>
+              </div>
+              <h3 class="display" style="margin: 0; font-size: 36px; font-weight: 700">Fly</h3>
+              <p style="margin: 0; color: #A9B3B1; font-size: 16px">Tiny whoop in the living room or 5" at the field.</p>
+            </div>
+          </div>
+          <div class="tile span-4" style="min-height: 250px">
+            <div class="tile-copy" style="padding-bottom: 32px; gap: 16px">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start">
+                <svg width="60" height="60" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: var(--accent)"><circle cx="26" cy="36" r="18"/><path d="M26 36V25M21 10h10M26 10v8"/><path d="M50 26c3 3 3 17 0 20M56 20c6 6 6 26 0 32"/></svg>
+                <span class="display" style="font-size: 72px; font-weight: 800; font-style: italic; color: transparent; -webkit-text-stroke: 1.5px #2C3438">3</span>
+              </div>
+              <h3 class="display" style="margin: 0; font-size: 36px; font-weight: 700">Every lap, timed</h3>
+              <p style="margin: 0; color: #A9B3B1; font-size: 16px">A beep on each crossing. Your times, read out loud.</p>
+            </div>
+          </div>
+
+          <figure class="tile span-12" style="margin: 0; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 0">
+            <div style="flex: 1.6 1 460px; min-width: 0; position: relative; aspect-ratio: 880/492; background: #000">
+              <video src="assets/gate-crossing.mp4" poster="assets/gate-crossing-poster.jpg" autoplay="" muted="" loop="" playsinline="" preload="none" aria-label="The drone crosses the gate and OverLap counts the lap" style="display: block; width: 100%; height: 100%; object-fit: cover"></video>
+            </div>
+            <figcaption style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 16px; padding: 36px">
+              <div class="mono" style="display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; letter-spacing: .14em">
+                <span style="padding: 5px 10px; border-radius: 6px; background: #F2F5F4; color: #050607; font-weight: 700">TRIGGER</span>
+                <span style="padding: 5px 10px; border-radius: 6px; background: rgba(112,241,201,.14); color: var(--accent); font-weight: 700">COUNTED</span>
+              </div>
+              <p class="display" style="margin: 0; font-size: clamp(34px, 3.4cqi, 48px); font-weight: 700; line-height: .98">The camera sees the drone cross. That's a lap.</p>
+              <p style="margin: 0; color: #A9B3B1; font-size: 16px">Every trigger is saved, frame by frame, so you can check any crossing later.</p>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── FEATURES BENTO ───────── -->
+    <section id="features" aria-labelledby="features-title" style="padding: 80px 0 120px">
+      <div class="wrap" style="display: flex; flex-direction: column; gap: 44px">
+        <div class="reveal" style="display: flex; flex-direction: column; gap: 14px">
+          <div class="kicker">Features</div>
+          <h2 id="features-title" class="display" style="margin: 0; font-size: clamp(48px, 6.4cqi, 92px); font-weight: 800; font-style: italic">Everything after<br><span style="color: var(--accent)">the beep.</span></h2>
+        </div>
+
+        <div class="bento">
+          <!-- Stats -->
+          <article class="tile span-7 reveal" style="min-height: 640px">
+            <div class="tile-copy">
+              <div class="kicker">Stats &amp; races</div>
+              <h3 class="display" style="margin: 0; font-size: clamp(42px, 4.4cqi, 60px); font-weight: 800; font-style: italic">Every lap. Every stat.</h3>
+              <p style="margin: 0; color: #A9B3B1; font-size: 17px; max-width: 440px">Best lap, average, best consecutive laps. Free practice, lap-count or time-limit races.</p>
+            </div>
+            <div class="tile-media" style="min-height: 420px">
+              <div style="position: absolute; left: 36px; bottom: 40px; z-index: 3; display: flex; flex-direction: column; gap: 18px">
+                <div style="display: flex; flex-direction: column; gap: 2px">
+                  <span class="mono" style="font-size: 11px; letter-spacing: .16em; color: #8C969A">BEST LAP</span>
+                  <span class="mono" style="font-size: clamp(40px, 4.4cqi, 58px); font-weight: 700; letter-spacing: -0.03em; line-height: 1; color: var(--accent)">0:12.69</span>
+                </div>
+                <div style="display: flex; gap: 26px">
+                  <div style="display: flex; flex-direction: column; gap: 2px"><span class="mono" style="font-size: 11px; letter-spacing: .16em; color: #8C969A">AVERAGE</span><span class="mono" style="font-size: 26px; font-weight: 700">0:15.05</span></div>
+                  <div style="display: flex; flex-direction: column; gap: 2px"><span class="mono" style="font-size: 11px; letter-spacing: .16em; color: #8C969A">BEST 3</span><span class="mono" style="font-size: 26px; font-weight: 700">0:38.34</span></div>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px"><span class="chip">FREE PRACTICE</span><span class="chip">LAP COUNT</span><span class="chip">TIME LIMIT</span></div>
+              </div>
+              <div class="device" style="width: clamp(210px, 21cqi, 268px); right: 7%; top: 10px; --rotate-y: -24deg; --rotate-x: 8deg; --rotate-z: 3deg">
+                <div class="device-body">
+                  <img class="device-screen" src="assets/screen-race-stats.jpg" alt="Race summary: 9 laps, best lap 12.69 on lap 7, average 15.05, best 3 in a row 38.34" loading="lazy">
+                  <span class="device-glare" aria-hidden="true"></span>
+                  <img class="device-frame" src="assets/iphone-17-pro-frame.png" alt="" aria-hidden="true">
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Sectors (Pro) -->
+          <article class="tile span-5 reveal" style="min-height: 640px">
+            <div class="tile-copy">
+              <div style="display: flex; align-items: center; gap: 10px"><div class="kicker">Sectors</div><span class="pro-badge">PRO</span></div>
+              <h3 class="display" style="margin: 0; font-size: clamp(42px, 4.4cqi, 60px); font-weight: 800; font-style: italic">Find the lost tenths.</h3>
+              <p style="margin: 0; color: #A9B3B1; font-size: 17px">Split each lap from your goggle footage. Compare it to your best, sector by sector, throttle included.</p>
+            </div>
+            <div class="tile-media" style="min-height: 420px">
+              <div class="device" style="width: clamp(220px, 20cqi, 260px); left: 50%; margin-left: calc(clamp(220px, 20cqi, 260px) / -2); top: 30px; --rotate-y: 18deg; --rotate-x: 10deg; --rotate-z: -2deg">
+                <div class="device-body">
+                  <img class="device-screen" src="assets/screen-sectors.jpg" alt="Sector comparison: ahead of lap 19 until 'And back', where 0.33 s is lost; gap chart and throttle trace" loading="lazy">
+                  <span class="device-glare" aria-hidden="true"></span>
+                  <img class="device-frame" src="assets/iphone-17-pro-frame.png" alt="" aria-hidden="true">
+                </div>
+              </div>
+              <div class="float-card floating" style="right: 22px; top: 70px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px">
+                <span class="mono" style="font-size: 11px; letter-spacing: .14em; color: #A9B3B1">▸ AND BACK</span>
+                <span class="mono" style="font-size: 22px; font-weight: 700">2.39 <span style="color: #FF6B5E; font-size: 15px">+0.33</span></span>
+              </div>
+              <div class="float-card" style="left: 22px; bottom: 60px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px">
+                <span class="mono" style="font-size: 11px; letter-spacing: .14em; color: #A9B3B1">▸ START GATE</span>
+                <span class="mono" style="font-size: 22px; font-weight: 700">1.37 <span style="color: #A9B3B1; font-size: 15px">+0.12</span></span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Progress -->
+          <article class="tile span-5 reveal" style="min-height: 600px">
+            <div class="tile-copy">
+              <div class="kicker">Progress</div>
+              <h3 class="display" style="margin: 0; font-size: clamp(42px, 4.4cqi, 60px); font-weight: 800; font-style: italic">See yourself get faster.</h3>
+              <p style="margin: 0; color: #A9B3B1; font-size: 17px">Tracks, personal bests, progress charts and a daily flying streak.</p>
+            </div>
+            <div class="tile-media" style="min-height: 380px">
+              <div class="device" style="width: clamp(230px, 21cqi, 270px); left: 50%; margin-left: calc(clamp(230px, 21cqi, 270px) / -2); top: 10px; --rotate-x: 46deg; --rotate-z: -24deg">
+                <div class="device-body">
+                  <img class="device-screen" src="assets/screen-progress.jpg" alt="Track page 'Full apartment': best lap 12.69, best lap per race chart, list of races" loading="lazy">
+                  <span class="device-glare" aria-hidden="true"></span>
+                  <img class="device-frame" src="assets/iphone-17-pro-frame.png" alt="" aria-hidden="true">
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Apple Watch -->
+          <article class="tile span-7 reveal" style="min-height: 600px">
+            <div class="tile-copy">
+              <div class="kicker">Apple Watch</div>
+              <h3 class="display" style="margin: 0; font-size: clamp(42px, 4.4cqi, 60px); font-weight: 800; font-style: italic">Your laps on your wrist.</h3>
+              <p style="margin: 0; color: #A9B3B1; font-size: 17px; max-width: 460px">Start and stop the race from the Watch. Last and best lap at a glance. Pick the pack with the Digital Crown.</p>
+            </div>
+            <div class="tile-media" style="min-height: 380px">
+              <div class="device" style="width: clamp(200px, 19cqi, 240px); left: 12%; top: 26px; --rotate-y: 26deg; --rotate-x: 6deg; --rotate-z: -4deg; opacity: .9">
+                <div class="device-body">
+                  <img class="device-screen" src="assets/screen-race-live.jpg" alt="Race screen on iPhone during a timed race" loading="lazy">
+                  <span class="device-glare" aria-hidden="true"></span>
+                  <img class="device-frame" src="assets/iphone-17-pro-frame.png" alt="" aria-hidden="true">
+                </div>
+              </div>
+              <div class="watch" style="width: clamp(210px, 21cqi, 270px); right: 10%; top: 0; z-index: 2; --rotate-y: -22deg; --rotate-x: 8deg; --rotate-z: 4deg">
+                <div class="device-body">
+                  <img class="watch-screen" src="assets/watch-race.png" alt="Apple Watch: end race? Last 10.50, best 4.16, 4 laps, Save or Resume" loading="lazy">
+                  <span class="watch-glare" aria-hidden="true"></span>
+                  <img class="device-frame" src="assets/apple-watch-ultra-frame.png" alt="" aria-hidden="true">
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Free flight -->
+          <article class="tile span-6 reveal" style="min-height: 640px">
+            <img src="assets/backdrop-freestyle.jpg" alt="" aria-hidden="true" loading="lazy" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 40% 50%; z-index: -3">
+            <div aria-hidden="true" style="position: absolute; inset: 0; z-index: -2; background: linear-gradient(180deg, rgba(8,10,11,.94) 0%, rgba(8,10,11,.7) 32%, rgba(8,10,11,.25) 70%, rgba(8,10,11,.6) 100%)"></div>
+            <div class="tile-copy">
+              <div class="kicker">Free flight</div>
+              <h3 class="display" style="margin: 0; font-size: clamp(42px, 4.4cqi, 60px); font-weight: 800; font-style: italic">Not every pack is a race.</h3>
+              <p style="margin: 0; color: #A9B3B1; font-size: 17px">Freestyle or cruising: air time per pack against your usual, the next pack in rotation, and a code to link the DVR.</p>
+            </div>
+            <div class="tile-media" style="min-height: 420px">
+              <div class="device" style="width: clamp(190px, 18cqi, 230px); left: 10%; top: 50px; --rotate-y: 28deg; --rotate-x: 6deg; --rotate-z: -5deg; opacity: .88">
+                <div class="device-body">
+                  <img class="device-screen" src="assets/screen-freeflight-landed.jpg" alt="Landed: pack #4, 0:08, today's flights, next flight pack #3 next in rotation" loading="lazy">
+                  <span class="device-glare" aria-hidden="true"></span>
+                  <img class="device-frame" src="assets/iphone-17-pro-frame.png" alt="" aria-hidden="true">
+                </div>
+              </div>
+              <div class="device" style="width: clamp(210px, 20cqi, 256px); right: 10%; top: 10px; z-index: 2; --rotate-y: -20deg; --rotate-x: 6deg; --rotate-z: 3deg">
+                <div class="device-body">
+                  <img class="device-screen" src="assets/screen-freeflight-flying.jpg" alt="Flying: pack #2, 0:07 air time, usual 7:27, QR code to link the DVR, Landed button" loading="lazy">
+                  <span class="device-glare" aria-hidden="true"></span>
+                  <img class="device-frame" src="assets/iphone-17-pro-frame.png" alt="" aria-hidden="true">
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Packs -->
+          <article class="tile span-6 reveal" style="min-height: 640px">
+            <div class="tile-copy">
+              <div class="kicker">Packs</div>
+              <h3 class="display" style="margin: 0; font-size: clamp(42px, 4.4cqi, 60px); font-weight: 800; font-style: italic">Know your packs.</h3>
+              <p style="margin: 0; color: #A9B3B1; font-size: 17px">Numbered packs with printable QR labels. Rotation, air time and charge cycles for every one.</p>
+            </div>
+            <div class="tile-media" style="min-height: 420px">
+              <div class="device" style="width: clamp(210px, 20cqi, 250px); right: 8%; top: 10px; --rotate-y: -24deg; --rotate-x: 6deg; --rotate-z: 3deg">
+                <div class="device-body">
+                  <img class="device-screen" src="assets/screen-packs.jpg" alt="Packs list: numbered 1S packs with cycle counts, minutes per pack and health" loading="lazy">
+                  <span class="device-glare" aria-hidden="true"></span>
+                  <img class="device-frame" src="assets/iphone-17-pro-frame.png" alt="" aria-hidden="true">
+                </div>
+              </div>
+              <img src="assets/battery-pack-qr.png" alt="A 1S battery pack with OverLap's printed QR label, pack #6" loading="lazy" style="position: absolute; z-index: 3; left: -4%; bottom: 70px; width: clamp(280px, 30cqi, 380px); height: auto">
+            </div>
+          </article>
+
+          <!-- Voice -->
+          <article class="tile span-4 reveal" style="min-height: 280px">
+            <div class="tile-copy" style="padding-bottom: 34px; gap: 18px; height: 100%; justify-content: space-between">
+              <div style="display: flex; align-items: center; gap: 5px; height: 56px" aria-hidden="true">
+                <span class="voice-bar" style="width: 6px; height: 40%; border-radius: 3px; background: var(--accent); animation-delay: -0.1s"></span>
+                <span class="voice-bar" style="width: 6px; height: 80%; border-radius: 3px; background: var(--accent); animation-delay: -0.5s"></span>
+                <span class="voice-bar" style="width: 6px; height: 100%; border-radius: 3px; background: var(--accent); animation-delay: -0.3s"></span>
+                <span class="voice-bar" style="width: 6px; height: 60%; border-radius: 3px; background: var(--accent); animation-delay: -0.8s"></span>
+                <span class="voice-bar" style="width: 6px; height: 90%; border-radius: 3px; background: var(--accent); animation-delay: -0.2s"></span>
+                <span class="voice-bar" style="width: 6px; height: 50%; border-radius: 3px; background: var(--accent); animation-delay: -0.6s"></span>
+                <span class="voice-bar" style="width: 6px; height: 75%; border-radius: 3px; background: var(--accent); animation-delay: -0.4s"></span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 8px">
+                <h3 class="display" style="margin: 0; font-size: 38px; font-weight: 700">Eyes in the goggles</h3>
+                <p style="margin: 0; color: #A9B3B1; font-size: 16px">A sound on every crossing, and your lap times read out loud.</p>
+              </div>
+            </div>
+          </article>
+
+          <!-- Privacy -->
+          <article class="tile span-4 reveal" style="min-height: 280px">
+            <div class="tile-copy" style="padding-bottom: 34px; gap: 18px; height: 100%; justify-content: space-between">
+              <svg width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: var(--accent)"><rect x="10" y="21" width="28" height="20" rx="4"/><path d="M16 21v-6a8 8 0 0 1 16 0v6"/><circle cx="24" cy="31" r="2.5"/></svg>
+              <div style="display: flex; flex-direction: column; gap: 8px">
+                <h3 class="display" style="margin: 0; font-size: 38px; font-weight: 700">No account. No ads.</h3>
+                <p style="margin: 0; color: #A9B3B1; font-size: 16px">No data collected. Everything stays on your iPhone and your own iCloud.</p>
+              </div>
+            </div>
+          </article>
+
+          <!-- Languages -->
+          <article class="tile span-4 reveal" style="min-height: 280px">
+            <div class="tile-copy" style="padding-bottom: 34px; gap: 18px; height: 100%; justify-content: space-between">
+              <div class="mono" style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 15px; font-weight: 700">
+                <span style="padding: 8px 12px; border-radius: 10px; background: var(--accent); color: #04140F">EN</span>
+                <span style="padding: 8px 12px; border-radius: 10px; background: #161B1D">FR</span>
+                <span style="padding: 8px 12px; border-radius: 10px; background: #161B1D">DE</span>
+                <span style="padding: 8px 12px; border-radius: 10px; background: #161B1D">ES</span>
+                <span style="padding: 8px 12px; border-radius: 10px; background: #161B1D">IT</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 8px">
+                <h3 class="display" style="margin: 0; font-size: 38px; font-weight: 700">Speaks your language</h3>
+                <p style="margin: 0; color: #A9B3B1; font-size: 16px">English, French, German, Spanish and Italian.</p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── SHOWCASE ───────── -->
+    <section id="overlays" aria-labelledby="overlays-title" style="position: relative; background: #000; padding: 130px 0 140px; border-top: 1px solid #14181A; border-bottom: 1px solid #14181A; overflow: hidden; isolation: isolate">
+      <div aria-hidden="true" style="position: absolute; left: 50%; top: -260px; width: 1100px; height: 600px; transform: translateX(-50%); z-index: -1; background: radial-gradient(closest-side, rgba(112,241,201,.14), rgba(112,241,201,0))"></div>
+      <div class="wrap" style="display: flex; flex-direction: column; gap: 44px">
+        <div class="reveal" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 28px 60px">
+          <div style="flex: 1 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+            <div class="kicker">DVR overlays</div>
+            <h2 id="overlays-title" class="display" style="margin: 0; font-size: clamp(52px, 7.2cqi, 112px); font-weight: 800; font-style: italic">Your goggle footage.<br><span style="color: var(--accent)">Your numbers on it.</span></h2>
+          </div>
+          <ol class="mono" style="flex: 0 1 360px; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 14px; color: #C9D2D0">
+            <li style="display: flex; gap: 14px; align-items: baseline"><span style="color: var(--accent); font-weight: 700">01</span>Import the DVR from your goggles</li>
+            <li style="display: flex; gap: 14px; align-items: baseline"><span style="color: var(--accent); font-weight: 700">02</span>OverLap syncs it with the code on your phone</li>
+            <li style="display: flex; gap: 14px; align-items: baseline"><span style="color: var(--accent); font-weight: 700">03</span>Export with your stats, ready to share</li>
+          </ol>
+        </div>
+
+        <figure class="tile reveal" style="margin: 0; flex-direction: row; flex-wrap: wrap; align-items: stretch">
+          <div style="flex: 1.7 1 480px; min-width: 0; position: relative; aspect-ratio: 4/3; background: #000">
+            <video src="assets/osd-clean-wipe.mp4" poster="assets/osd-clean-wipe-poster.jpg" autoplay="" muted="" loop="" playsinline="" preload="none" aria-label="A divider sweeps across the footage: on the left the cleaned DVR with OverLap's overlay, on the right the raw DVR with the goggle OSD" style="display: block; width: 100%; height: 100%; object-fit: cover"></video>
+            <span class="mono" style="position: absolute; left: 16px; top: 16px; font-size: 11px; font-weight: 700; letter-spacing: .14em; padding: 6px 10px; border-radius: 6px; background: var(--accent); color: #04140F">CLEANED + OVERLAP</span>
+            <span class="mono" style="position: absolute; right: 16px; top: 16px; font-size: 11px; font-weight: 700; letter-spacing: .14em; padding: 6px 10px; border-radius: 6px; background: rgba(0,0,0,.7); color: #F2F5F4">RAW DVR</span>
+          </div>
+          <figcaption style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 16px; padding: 40px">
+            <div class="kicker">OSD cleaning</div>
+            <p class="display" style="margin: 0; font-size: clamp(40px, 4cqi, 56px); font-weight: 800; font-style: italic; line-height: .95">Clean DVR.<br>Just your numbers.</p>
+            <p style="margin: 0; color: #A9B3B1; font-size: 17px">OverLap removes your goggles' OSD text from the footage, so only your overlay shows.</p>
+          </figcaption>
+        </figure>
+
+        <div class="reveal" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 20px">
+          <figure class="tile" style="margin: 0">
+              <div style="position: relative; aspect-ratio: 4/3; background: #0B0D0E">
+                <video src="assets/overlay-tower.mp4" poster="assets/overlay-tower-poster.jpg" autoplay="" muted="" loop="" playsinline="" preload="none" aria-label="Tower overlay on goggle DVR footage" style="display: block; width: 100%; height: 100%; object-fit: cover"></video>
+              </div>
+              <figcaption style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px 18px">
+                <span class="display" style="font-size: 30px; font-weight: 700; font-style: italic">Tower</span>
+                <span class="mono" style="font-size: 11px; letter-spacing: .14em; font-weight: 700; padding: 5px 9px; border-radius: 6px; background: #22282C; color: #F2F5F4">FREE</span>
+              </figcaption>
+            </figure>
+<figure class="tile" style="margin: 0">
+              <div style="position: relative; aspect-ratio: 4/3; background: #0B0D0E">
+                <video src="assets/overlay-telemetry.mp4" poster="assets/overlay-telemetry-poster.jpg" autoplay="" muted="" loop="" playsinline="" preload="none" aria-label="Telemetry overlay on goggle DVR footage" style="display: block; width: 100%; height: 100%; object-fit: cover"></video>
+              </div>
+              <figcaption style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px 18px">
+                <span class="display" style="font-size: 30px; font-weight: 700; font-style: italic">Telemetry</span>
+                <span class="mono" style="font-size: 11px; letter-spacing: .14em; font-weight: 700; padding: 5px 9px; border-radius: 6px; background: var(--accent); color: #04140F">PRO</span>
+              </figcaption>
+            </figure>
+<figure class="tile" style="margin: 0">
+              <div style="position: relative; aspect-ratio: 4/3; background: #0B0D0E">
+                <video src="assets/overlay-numeral.mp4" poster="assets/overlay-numeral-poster.jpg" autoplay="" muted="" loop="" playsinline="" preload="none" aria-label="Numeral overlay on goggle DVR footage" style="display: block; width: 100%; height: 100%; object-fit: cover"></video>
+              </div>
+              <figcaption style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px 18px">
+                <span class="display" style="font-size: 30px; font-weight: 700; font-style: italic">Numeral</span>
+                <span class="mono" style="font-size: 11px; letter-spacing: .14em; font-weight: 700; padding: 5px 9px; border-radius: 6px; background: var(--accent); color: #04140F">PRO</span>
+              </figcaption>
+            </figure>
+<figure class="tile" style="margin: 0">
+              <div style="position: relative; aspect-ratio: 4/3; background: #0B0D0E">
+                <video src="assets/overlay-ticker.mp4" poster="assets/overlay-ticker-poster.jpg" autoplay="" muted="" loop="" playsinline="" preload="none" aria-label="Ticker overlay on goggle DVR footage" style="display: block; width: 100%; height: 100%; object-fit: cover"></video>
+              </div>
+              <figcaption style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px 18px">
+                <span class="display" style="font-size: 30px; font-weight: 700; font-style: italic">Ticker</span>
+                <span class="mono" style="font-size: 11px; letter-spacing: .14em; font-weight: 700; padding: 5px 9px; border-radius: 6px; background: var(--accent); color: #04140F">PRO</span>
+              </figcaption>
+            </figure>
+<figure class="tile" style="margin: 0">
+              <div style="position: relative; aspect-ratio: 4/3; background: #0B0D0E">
+                <video src="assets/overlay-broadcast.mp4" poster="assets/overlay-broadcast-poster.jpg" autoplay="" muted="" loop="" playsinline="" preload="none" aria-label="Broadcast overlay on goggle DVR footage" style="display: block; width: 100%; height: 100%; object-fit: cover"></video>
+              </div>
+              <figcaption style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px 18px">
+                <span class="display" style="font-size: 30px; font-weight: 700; font-style: italic">Broadcast</span>
+                <span class="mono" style="font-size: 11px; letter-spacing: .14em; font-weight: 700; padding: 5px 9px; border-radius: 6px; background: var(--accent); color: #04140F">PRO</span>
+              </figcaption>
+            </figure>
+<figure class="tile" style="margin: 0">
+              <div style="position: relative; aspect-ratio: 4/3; background: #0B0D0E">
+                <video src="assets/overlay-osd.mp4" poster="assets/overlay-osd-poster.jpg" autoplay="" muted="" loop="" playsinline="" preload="none" aria-label="OSD overlay on goggle DVR footage" style="display: block; width: 100%; height: 100%; object-fit: cover"></video>
+              </div>
+              <figcaption style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px 18px">
+                <span class="display" style="font-size: 30px; font-weight: 700; font-style: italic">OSD</span>
+                <span class="mono" style="font-size: 11px; letter-spacing: .14em; font-weight: 700; padding: 5px 9px; border-radius: 6px; background: var(--accent); color: #04140F">PRO</span>
+              </figcaption>
+            </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── PRO ───────── -->
+    <section id="pro" aria-labelledby="pro-title" style="padding: 130px 0 110px">
+      <div class="wrap" style="display: flex; flex-direction: column; gap: 48px">
+        <div class="reveal" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 24px 60px">
+          <div style="display: flex; flex-direction: column; gap: 16px">
+            <div class="kicker">OverLap Pro</div>
+            <h2 id="pro-title" class="display" style="margin: 0; font-size: clamp(52px, 7.2cqi, 112px); font-weight: 800; font-style: italic">Paid once.<br>Yours for good.</h2>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <div class="mono" style="font-size: clamp(52px, 5.4cqi, 72px); font-weight: 700; letter-spacing: -0.03em; line-height: 1; color: var(--accent)">€9.99</div>
+            <div style="font-size: 16px; color: #A9B3B1">One time. No subscription.<br>Shared with Family Sharing.</div>
+          </div>
+        </div>
+
+        <div class="bento reveal">
+          <div class="tile span-5" style="padding: clamp(26px, 3cqi, 40px); gap: 24px">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px">
+              <h3 class="display" style="margin: 0; font-size: 48px; font-weight: 800; font-style: italic">Free</h3>
+              <span style="font-size: 15px; color: #A9B3B1">Time and train</span>
+            </div>
+            <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; font-size: 17px">
+              <li style="display: flex; gap: 12px; align-items: flex-start"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#8C969A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 4px"><path d="M4 10.5l4 4 8-9"/></svg>Camera lap timing, sound and voice</li>
+              <li style="display: flex; gap: 12px; align-items: flex-start"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#8C969A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 4px"><path d="M4 10.5l4 4 8-9"/></svg>Every stat, every race mode</li>
+              <li style="display: flex; gap: 12px; align-items: flex-start"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#8C969A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 4px"><path d="M4 10.5l4 4 8-9"/></svg>Tracks, personal bests, progress and streak</li>
+              <li style="display: flex; gap: 12px; align-items: flex-start"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#8C969A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 4px"><path d="M4 10.5l4 4 8-9"/></svg>Free flight sessions</li>
+              <li style="display: flex; gap: 12px; align-items: flex-start"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#8C969A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 4px"><path d="M4 10.5l4 4 8-9"/></svg>Apple Watch app</li>
+              <li style="display: flex; gap: 12px; align-items: flex-start"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#8C969A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 4px"><path d="M4 10.5l4 4 8-9"/></svg>Packs with QR labels</li>
+              <li style="display: flex; gap: 12px; align-items: flex-start"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#8C969A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 4px"><path d="M4 10.5l4 4 8-9"/></svg>DVR export with OSD cleaning and the Tower overlay</li>
+            </ul>
+          </div>
+          <div class="tile span-7" style="padding: clamp(26px, 3cqi, 40px); gap: 24px; background: linear-gradient(180deg, rgba(112,241,201,.09), rgba(112,241,201,.02) 55%, rgba(11,14,15,1)) padding-box, linear-gradient(165deg, rgba(112,241,201,.7), rgba(112,241,201,.12) 45%, rgba(112,241,201,.5)) border-box; box-shadow: 0 40px 100px -50px rgba(112,241,201,.55)">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px">
+              <h3 class="display" style="margin: 0; font-size: 48px; font-weight: 800; font-style: italic; color: var(--accent)">Pro</h3>
+              <span style="font-size: 15px; color: #C9D2D0">Everything in Free, plus</span>
+            </div>
+            <ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 20px 28px; font-size: 17px">
+              <li style="display: flex; flex-direction: column; gap: 4px"><b class="display" style="font-size: 28px; font-weight: 700">Sectors</b><span style="color: #C9D2D0">Split each lap from your goggle footage and compare it to your best, sector by sector.</span></li>
+              <li style="display: flex; flex-direction: column; gap: 4px"><b class="display" style="font-size: 28px; font-weight: 700">Battery from the OSD</b><span style="color: #C9D2D0">mAh and voltage per lap, pack health, when to land.</span></li>
+              <li style="display: flex; flex-direction: column; gap: 4px"><b class="display" style="font-size: 28px; font-weight: 700">Five more overlays</b><span style="color: #C9D2D0">Telemetry, Numeral, Ticker, Broadcast, OSD.</span></li>
+              <li style="display: flex; flex-direction: column; gap: 4px"><b class="display" style="font-size: 28px; font-weight: 700">No watermark</b><span style="color: #C9D2D0">Clean exports, ready to post.</span></li>
+              <li style="display: flex; flex-direction: column; gap: 4px"><b class="display" style="font-size: 28px; font-weight: 700">CSV export</b><span style="color: #C9D2D0">Your laps, in your spreadsheet.</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── WHAT YOU NEED ───────── -->
+    <section aria-labelledby="need-title" style="padding: 20px 0 120px">
+      <div class="wrap" style="display: flex; flex-direction: column; gap: 40px">
+        <h2 id="need-title" class="display reveal" style="margin: 0; font-size: clamp(48px, 6.4cqi, 92px); font-weight: 800; font-style: italic">What you need.</h2>
+        <div class="bento reveal">
+          <div class="tile span-6" style="min-height: 420px">
+            <img src="assets/backdrop-field-dusk.jpg" alt="Inflatable racing gates in a field at dusk, a drone's light trail passing through" loading="lazy" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 75% 50%; z-index: -1">
+          </div>
+          <div class="span-6" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px">
+            <div class="tile" style="grid-column: span 2; padding: 28px; gap: 16px; justify-content: space-between">
+              <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: var(--accent)"><rect x="13" y="4" width="22" height="40" rx="5"/><path d="M21 9h6"/></svg>
+              <div style="display: flex; flex-direction: column; gap: 4px"><span class="kicker">Required</span><span class="display" style="font-size: 34px; font-weight: 700">An iPhone</span></div>
+            </div>
+            <div class="tile" style="padding: 28px; gap: 16px; justify-content: space-between">
+              <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: #8C969A"><rect x="12" y="12" width="22" height="24" rx="7"/><path d="M17 12l2-8h8l2 8M17 36l2 8h8l2-8M34 20h3v6h-3"/></svg>
+              <div style="display: flex; flex-direction: column; gap: 4px"><span class="mono" style="font-size: 12px; letter-spacing: .16em; color: #8C969A">OPTIONAL</span><span class="display" style="font-size: 34px; font-weight: 700; color: #C9D2D0">Apple Watch</span></div>
+            </div>
+            <div class="tile" style="padding: 28px; gap: 16px; justify-content: space-between">
+              <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: #8C969A"><path d="M4 18c0-4 3-6 7-6h26c4 0 7 2 7 6v10c0 4-3 6-7 6h-6l-4-5h-6l-4 5h-6c-4 0-7-2-7-6z"/><circle cx="15" cy="23" r="4"/><circle cx="33" cy="23" r="4"/></svg>
+              <div style="display: flex; flex-direction: column; gap: 4px"><span class="mono" style="font-size: 12px; letter-spacing: .16em; color: #8C969A">OPTIONAL</span><span class="display" style="font-size: 34px; font-weight: 700; color: #C9D2D0">DVR goggles</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── FINAL CTA ───────── -->
+    <section aria-labelledby="final-title" style="position: relative; overflow: hidden; isolation: isolate; padding: 160px 0 170px; text-align: center">
+      <img src="assets/backdrop-light-trails.jpg" alt="" aria-hidden="true" loading="lazy" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; z-index: -2; opacity: .85">
+      <div aria-hidden="true" style="position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, #050607 0%, rgba(5,6,7,.5) 35%, rgba(5,6,7,.5) 65%, #050607 100%)"></div>
+      <div class="wrap reveal" style="display: flex; flex-direction: column; align-items: center; gap: 36px">
+        <h2 id="final-title" class="display" style="margin: 0; font-size: clamp(58px, 8.8cqi, 138px); font-weight: 800; font-style: italic; text-wrap: balance">Your next best lap<br><span style="color: var(--accent)">is waiting.</span></h2>
+        <a href="https://apps.apple.com/app/overlap-lap-timer/idXXXXXXXXXX" aria-label="Download OverLap on the App Store" style="display: block; line-height: 0; border-radius: 14px; box-shadow: 0 14px 50px -10px rgba(112,241,201,.55)"><img src="assets/app-store-badge.svg" alt="Download on the App Store" style="height: 72px; width: auto; display: block"></a>
+        <div style="font-size: 15px; color: #A9B3B1">Free · iPhone and Apple Watch</div>
+      </div>
+    </section>
+
+    <!-- ───────── FOOTER ───────── -->
+    <footer style="border-top: 1px solid #14181A">
+      <div class="wrap" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px 40px; padding-top: 36px; padding-bottom: 40px; font-size: 15px; color: #A9B3B1">
+        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap">
+          <span class="display" style="font-size: 26px; font-weight: 800; font-style: italic; text-transform: none; color: #F2F5F4">Over<span style="color: var(--accent)">Lap</span></span>
+          <span>© 2026 OverLap</span>
+        </div>
+        <nav aria-label="Footer" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px">
+          <a href="support.html" style="padding: 10px 0">Support</a>
+          <a href="privacy.html" style="padding: 10px 0">Privacy policy</a>
+          <div class="mono" role="group" aria-label="Language" style="display: flex; gap: 4px; font-size: 13px">
+            <a href="./" aria-current="page" lang="en" style="padding: 10px 9px; border-radius: 8px; background: #14181A; color: #F2F5F4">EN</a>
+            <a href="fr/" lang="fr" style="padding: 10px 9px; border-radius: 8px">FR</a>
+            <a href="de/" lang="de" style="padding: 10px 9px; border-radius: 8px">DE</a>
+            <a href="es/" lang="es" style="padding: 10px 9px; border-radius: 8px">ES</a>
+            <a href="it/" lang="it" style="padding: 10px 9px; border-radius: 8px">IT</a>
+          </div>
+        </nav>
+      </div>
+    </footer>
+
+    <!-- Sticky App Store bar, phone widths only, appears once the hero scrolls away -->
+    <div class="mobile-bar" style="position: sticky; bottom: 0; z-index: 10; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); align-items: center; justify-content: space-between; gap: 12px; background: rgba(5,6,7,.9); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid #1C2125">
+      <div style="display: flex; flex-direction: column; line-height: 1.15">
+        <span class="display" style="font-size: 22px; font-weight: 800; font-style: italic; text-transform: none">Over<span style="color: var(--accent)">Lap</span></span>
+        <span style="font-size: 13px; color: #A9B3B1">Free · FPV lap timer</span>
+      </div>
+      <a href="https://apps.apple.com/app/overlap-lap-timer/idXXXXXXXXXX" aria-label="Download OverLap on the App Store" style="display: block; line-height: 0"><img src="assets/app-store-badge.svg" alt="Download on the App Store" style="height: 44px; width: auto"></a>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var SEQ=[13.21,12.87,12.62,12.34,12.96,12.41,12.19,12.73],START_BEST=12.69,FIRST=4;
+  var START_LAPS=[[3,13.04],[2,12.69],[1,14.12]];
+  var cur=document.querySelector('[role="img"][aria-label="Live lap timer"]');
+  if(!cur) return;
+  var el=cur.querySelectorAll('.mono');
+  var lapNo=el[0].lastElementChild,time=el[1],bestRow=el[2],best=bestRow.lastElementChild;
+  var rows=cur.querySelectorAll('[data-lap-n]'),rowsT=cur.querySelectorAll('[data-lap-t]');
+  var fmt=function(s){var m=Math.floor(s/60);return m+':'+(s-m*60).toFixed(2).padStart(5,'0')};
+  var idx=0,n=FIRST,bestS=START_BEST,laps=START_LAPS.slice(),t0=performance.now(),flash=0;
+  function draw(){rows.forEach(function(r,i){r.textContent='L'+laps[i][0];rowsT[i].textContent=fmt(laps[i][1]);rowsT[i].style.color=laps[i][1]===bestS?'var(--accent)':'#C9D2D0'});}
+  setInterval(function(){
+    var e=(performance.now()-t0)/1000;
+    if(e<SEQ[idx]){time.textContent=fmt(e);return;}
+    t0=performance.now();
+    var isNew=SEQ[idx]<bestS;
+    laps=[[n,SEQ[idx]]].concat(laps).slice(0,3);bestS=Math.min(bestS,SEQ[idx]);
+    idx++;n++;
+    if(idx>=SEQ.length){idx=0;n=FIRST;bestS=START_BEST;laps=START_LAPS.slice();}
+    lapNo.textContent='LAP '+n;best.textContent=fmt(bestS);draw();
+    if(isNew){bestRow.style.animation='none';void bestRow.offsetWidth;bestRow.style.animation=(flash++%2?'bestFlashA':'bestFlashB')+' 900ms ease-out';}
+  },41);
+})();
+</script>
 </body>
 </html>
