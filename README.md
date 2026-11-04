@@ -1,6 +1,6 @@
 # OverLap site
 
-Marketing page (English, `index.html`), support page and privacy policy for the OverLap iOS app, in en, fr, de, es and it. Plain static HTML served by a Cloudflare Worker (static assets, `wrangler.jsonc`) on overlapfpv.com. Deploy with `npx wrangler@4 deploy`.
+Marketing page (English, `index.html`), support page and privacy policy for the OverLap iOS app, in en, fr, de, es and it. Plain static HTML served by a Cloudflare Worker (static assets, `wrangler.jsonc`) on overlapfpv.com. `src/worker.js` only adds the byte-range support Safari needs for the videos. Deploy with `npx wrangler@4 deploy`.
 
 - Support: https://overlapfpv.com/support (`fr/`, `de/`, `es/`, `it/` for the translations, where `index.html` is the support page)
 - Privacy: https://overlapfpv.com/privacy
