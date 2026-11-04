@@ -1,0 +1,10 @@
+{
+    "$schema": "https://unpkg.com/wrangler@4/config-schema.json",
+    "name": "overlap-site",
+    "compatibility_date": "2026-08-01",
+    // Plain static site: the repository root is the site, .assetsignore keeps the rest out of it.
+    "assets": { "directory": "." },
+    "routes": [{ "pattern": "overlapfpv.com", "custom_domain": true }],
+    "workers_dev": false,
+    "preview_urls": false,
+}

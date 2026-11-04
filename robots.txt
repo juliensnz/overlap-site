@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://overlap.nchez.fr/sitemap.xml
+Sitemap: https://overlapfpv.com/sitemap.xml
