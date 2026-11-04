@@ -1,3 +1,5 @@
+> The site moved to the `site/` folder of the fpvtimer repository and is served on https://overlapfpv.com. This repository only keeps the old GitHub Pages addresses working for app builds up to 1.0.0.
+
 # OverLap site
 
 Marketing page (English, `index.html`), support page and privacy policy for the OverLap iOS app, in en, fr, de, es and it. Plain static HTML served by a Cloudflare Worker (static assets, `wrangler.jsonc`) on overlapfpv.com. `src/worker.js` only adds the byte-range support Safari needs for the videos. Deploy with `npx wrangler@4 deploy`.
